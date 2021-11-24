@@ -1,0 +1,54 @@
+.titled-pane > .title {
+    -fx-background-color: ffffff;
+}
+
+.button, .toggle-button {
+    -fx-background-color: transparent;
+}
+
+.progress-bar {
+    -fx-accent: #575757;
+}
+
+.progress-bar > .bar {
+    -fx-background-insets: 1 1 2 1;
+    -fx-padding: 2px;
+}
+
+.progress-bar > .bar {
+    -fx-background-radius: 10;
+    -fx-border-radius: 10;
+}
+
+.progress-bar > .bar, .progress-bar > .track {
+    -fx-background-insets: 0;
+    -fx-control-inner-background: f0f0f0;
+}
+
+.progress-bar > .track {
+    -fx-background-color: -fx-text-box-border, -fx-control-inner-background;
+    -fx-background-radius: 10;
+    -fx-border-radius: 10;
+}
+
+.slider > .track {
+    -fx-background-color: null;
+}
+
+.slider > .bar {
+    -fx-opacity: 0%;
+}
+
+.slider > .thumb {
+
+    -fx-background-color: -thumb-color;
+}
+
+.slider {
+    -thumb-color: ffffff;
+}
+
+.label, .button {
+    -fx-font-family: "Segoe UI Semibold";
+    -fx-text-fill: #575757;
+}
