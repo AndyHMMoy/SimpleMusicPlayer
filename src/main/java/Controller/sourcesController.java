@@ -1,8 +1,6 @@
 package Controller;
 
 import Model.sourcesModel;
-import com.mpatric.mp3agic.InvalidDataException;
-import com.mpatric.mp3agic.UnsupportedTagException;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -16,7 +14,6 @@ import org.farng.mp3.TagException;
 
 import java.io.File;
 import java.io.IOException;
-import java.sql.SQLException;
 
 import static Controller.helper.iconRescaled;
 
@@ -33,6 +30,7 @@ public class sourcesController {
     String importPath;
     ImageView imgView;
 
+    // Sets the buttons with icons that have been resized and initialise the listView cells
     public void initialize() throws IOException {
         imgView = new ImageView(iconRescaled(new File("src/main/resources/icons/plus.png"), 20));
         add.setGraphic(imgView);
@@ -41,13 +39,14 @@ public class sourcesController {
         imgView = new ImageView(iconRescaled(new File("src/main/resources/icons/refresh.png"), 20));
         update.setGraphic(imgView);
 
-        sM.getTableNames();
+        sM.getSourceNames();
         ObservableList<String> sources = FXCollections.observableArrayList(sM.mediaSources);
         for (String source : sources) {
             sourceList.getItems().add(source);
         }
     }
 
+    // Adds a source to the 'settings.ini' file
     @FXML
     public void addSource() throws IOException {
         DirectoryChooser directoryChooser = new DirectoryChooser();
@@ -56,24 +55,26 @@ public class sourcesController {
         importPath = selectedDirectory.getAbsolutePath();
         if (selectedDirectory.getAbsolutePath() != null && !sM.mediaSources.contains(importPath)) {
             sM.mediaSources.add(importPath);
-            sM.createTable(importPath);
+            sM.createSource(importPath);
             sourceList.getItems().add(importPath);
-            sM.importTables(importPath);
+            sM.importFiles(importPath);
         }
 
     }
 
+    // Removes a source from the 'settings.ini' file
     @FXML
     public void removeSource() throws IOException {
-        sM.removeTable(sourceList.getSelectionModel().getSelectedItem());
+        sM.removeSource(sourceList.getSelectionModel().getSelectedItem());
         sM.mediaSources.remove(sourceList.getSelectionModel().getSelectedItem());
         sourceList.getItems().remove(sourceList.getSelectionModel().getSelectedItem());
     }
 
+    // Updates the sources with new files
     @FXML
     public void updateSources() throws IOException, TagException {
         for (String source : sM.mediaSources) {
-            sM.updateTables(source);
+            sM.updateFiles(source);
         }
     }
 

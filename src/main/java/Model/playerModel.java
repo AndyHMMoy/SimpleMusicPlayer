@@ -1,7 +1,5 @@
 package Model;
 
-import org.ini4j.Config;
-import org.ini4j.Ini;
 import org.ini4j.Wini;
 
 import java.io.File;
@@ -14,6 +12,7 @@ public class playerModel {
 
     public static ArrayList<mp3tag> searchResult = new ArrayList<>();
 
+    // Gets all songs with a title, artist, album, year, genre that matches the keyword
     public void searchByKeyword(String keyword) throws IOException {
         if (searchResult.size() > 0) {
             searchResult.clear();
@@ -21,7 +20,11 @@ public class playerModel {
         Wini ini = new Wini(new File("library.ini"));
         for (String s : ini.keySet()) {
             if (s.contains(".mp3")) {
-                if (ini.get(s, "title").equals(keyword) || ini.get(s, "artist").equals(keyword) || ini.get(s, "album").equals(keyword) || ini.get(s, "year").equals(keyword) || ini.get(s, "genre").equals(keyword)) {
+                if (ini.get(s, "title").toLowerCase().contains(keyword.toLowerCase()) ||
+                    ini.get(s, "artist").toLowerCase().contains(keyword.toLowerCase()) ||
+                    ini.get(s, "album").toLowerCase().contains(keyword.toLowerCase()) ||
+                    ini.get(s, "year").toLowerCase().contains(keyword.toLowerCase()) ||
+                    ini.get(s, "genre").toLowerCase().contains(keyword.toLowerCase())) {
                     String title = ini.get(s, "title");
                     String artist = ini.get(s, "artist");
                     String album = ini.get(s, "album");
@@ -31,11 +34,9 @@ public class playerModel {
                 }
             }
         }
-        for (mp3tag mp3 : searchResult) {
-            System.out.println(mp3.getFileName());
-        }
     }
 
+    // Gets all songs in 'library.ini'
     public void getAll() throws IOException {
         if (searchResult.size() > 0) {
             searchResult.clear();
@@ -52,17 +53,9 @@ public class playerModel {
             }
             System.out.println(artist + " - " + title);
         }
-        for (mp3tag mp3 : searchResult) {
-            System.out.println(mp3.getFileName());
-        }
     }
 
-    public void printSearchResults() {
-        for (Model.mp3tag mp3tag : searchResult) {
-            System.out.println(mp3tag.getArtist() + " - " + mp3tag.getTitle());
-        }
-    }
-
+    // Adds a song's tags in 'playlist.ini'
     public void addToPlaylist(mp3tag tag) throws IOException {
         Wini ini = new Wini(new File("playlist.ini"));
         ini.put(tag.getFileName(), "title", tag.getTitle());
@@ -73,12 +66,14 @@ public class playerModel {
         ini.store();
     }
 
+    // Removes a song from 'playlist.ini'
     public void removeFromPlaylist(String fileName) throws IOException {
         Wini ini = new Wini(new File("playlist.ini"));
         ini.remove(fileName);
         ini.store();
     }
 
+    // Gets all songs in 'playlist.ini' and adds them to playlist arraylist
     public void getPlaylist() throws IOException {
         Wini ini = new Wini(new File("playlist.ini"));
         if (playlist.size() > 0) {

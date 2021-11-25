@@ -14,12 +14,14 @@ import java.io.IOException;
 
 public class helper {
 
+    // Helper method to rescale the icons and images
     public static Image iconRescaled(File file, int size) throws IOException {
         BufferedImage img = Thumbnails.of(file).width(size).height(size).imageType(BufferedImage.TYPE_INT_ARGB).keepAspectRatio(true).outputFormat("png").antialiasing(Antialiasing.ON).asBufferedImage();
         Image image = SwingFXUtils.toFXImage(img, null);
         return image;
     }
 
+    // Helper method to get the main colour of the album art
     public static String getMainColour(ByteArrayInputStream file) throws IOException {
         BufferedImage bImg = ImageIO.read(file);
         int a[] = ColorThief.getColor(bImg);

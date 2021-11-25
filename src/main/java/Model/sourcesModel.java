@@ -20,7 +20,8 @@ public class sourcesModel {
     public static ArrayList<String> mediaSources = new ArrayList<>();
     ArrayList<Mp3File> Mp3s = new ArrayList<>();
 
-    public void createTable(String directory) throws IOException {
+    // Adds a source to 'settings.ini'
+    public void createSource(String directory) throws IOException {
         Wini ini = new Wini(new File("settings.ini"));
         String directoryEscape = directory.replaceAll("\\\\", "\\\\\\\\");
         Section section = ini.get("Sources");
@@ -34,7 +35,8 @@ public class sourcesModel {
         ini.store();
     }
 
-    public void removeTable(String directory) throws IOException {
+    // Removes a source from 'settings.ini'
+    public void removeSource(String directory) throws IOException {
         String directoryDoubleSlash = directory.replaceAll("\\\\", "\\\\");
         Wini ini = new Wini(new File("library.ini"));
         ArrayList<String> sectionNames = new ArrayList<>();
@@ -58,12 +60,14 @@ public class sourcesModel {
         ini.store();
     }
 
-    public void getTableNames() throws IOException {
+    // Gets all sources from 'settings.ini'
+    public void getSourceNames() throws IOException {
         mediaSources.clear();
         Config config = new Config();
         config.setEscape(false);
         Ini ini = new Ini(new File("settings.ini"));
         ini.setConfig(config);
+        // Adds a 'Sources' key if it does not exist
         if (ini.get("Sources") == null) {
             ini.put("Sources", null, null);
             ini.store();
@@ -82,15 +86,8 @@ public class sourcesModel {
         }
     }
 
-    public void importTables(String directory) throws IOException {
-        long startTime = System.nanoTime();
-        importFiles(directory, true);
-        long stopTime = System.nanoTime();
-        System.out.println(stopTime - startTime);
-        Mp3s.clear();
-    }
-
-    private void importFiles(String directory, boolean isImport) throws IOException {
+    // Imports all mp3 files in directory
+    public void importFiles(String directory) throws IOException {
         Wini ini = new Wini(new File("library.ini"));
         File f = new File(directory);
         ArrayList<File> files = new ArrayList<>(Arrays.asList(f.listFiles()));
@@ -112,16 +109,12 @@ public class sourcesModel {
                     year = tags.getYear();
                 }
                 String genre = tags.getGenreDescription();
-                if (!isImport) {
-                    Mp3s.add(new Mp3File(file));
-                } else {
-                    ini.put(fileName, "title", title);
-                    ini.put(fileName, "artist", artist);
-                    ini.put(fileName, "album", album);
-                    ini.put(fileName, "year", year);
-                    ini.put(fileName, "genre", genre);
-                    ini.store();
-                }
+                ini.put(fileName, "title", title);
+                ini.put(fileName, "artist", artist);
+                ini.put(fileName, "album", album);
+                ini.put(fileName, "year", year);
+                ini.put(fileName, "genre", genre);
+                ini.store();
                 System.out.println(fileName);
             } catch (Exception e) {
 
@@ -129,13 +122,15 @@ public class sourcesModel {
         }
         files.clear();
         System.out.println("Done");
+        Mp3s.clear();
     }
 
-    public void updateTables(String directory) throws IOException, TagException {
+    // Updates files in 'library.ini'
+    public void updateFiles(String directory) throws IOException {
         Wini ini = new Wini(new File("library.ini"));
         ini.clear();
         ini.store();
-        importFiles(directory, true);
+        importFiles(directory);
         Mp3s.clear();
     }
 

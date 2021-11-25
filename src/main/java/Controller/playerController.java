@@ -159,13 +159,13 @@ public class playerController {
         playlistView.getItems().addListener((ListChangeListener) observable -> playlistLabel.setText("Playlist (" + playlistView.getItems().size() + " Songs Added)"));
 
         // Gets tables names for querying
-        sM.getTableNames();
+        sM.getSourceNames();
 
         // Populates list and listview with initial playlist items
         pM.getPlaylist();
         populatePlaylistView();
 
-        // Creates a template for each cell in the search result to include album art play button, title, artist and an 'add to playlist' button
+        // Creates a template for each cell in the search result to include play button, title, artist and an 'add to playlist' button
         searchResultView.setCellFactory(param -> new ListCell<mp3tag>(){
             ImageView imageView = new ImageView();
             final Button button = new Button();
@@ -186,6 +186,7 @@ public class playerController {
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
+                    button.setTranslateY(3);
                     button.setGraphic(imageView);
                     button.setOnAction(event -> {
                         try {
@@ -213,7 +214,7 @@ public class playerController {
             }
         });
 
-        // Creates a template for each cell in the playlist view to include album art play button, title, artist and an 'remove to playlist' button
+        // Creates a template for each cell in the playlist view to include play button, title, artist and an 'remove to playlist' button
         playlistView.setCellFactory(param -> new ListCell<mp3tag>(){
             ImageView imageView = new ImageView();
             final Button button = new Button();
@@ -281,6 +282,7 @@ public class playerController {
         playlistPane.setGraphic(hBox);
     }
 
+    // Plays the playlist, shuffles depending on if shuffle mode is active
     @FXML
     public void playPlaylist(ObservableList<mp3tag> tagList, int start) throws IOException, InvalidDataException, UnsupportedTagException {
         if (isShuffle) {
@@ -291,6 +293,7 @@ public class playerController {
         }
     }
 
+    // Adds or removes songs from the playlist
     @FXML
     public void modifyPlaylist(mp3tag tag, boolean add) throws IOException {
         if (add) {
@@ -304,14 +307,17 @@ public class playerController {
         }
     }
 
+    // Gets the search results and sets it into the view
     @FXML
     public void searchKeyword() throws IOException {
+        // If there is text in the search bar, then search with the keyword
         if (!searchBar.getText().isEmpty()) {
             pM.searchByKeyword(searchBar.getText());
             searchResultView.getItems().clear();
             for (int i = 0; i < playerModel.searchResult.size(); i++) {
                 searchResultView.getItems().add(playerModel.searchResult.get(i));
             }
+        // Otherwise get all songs from all sources
         } else {
             pM.getAll();
             searchResultView.getItems().clear();
@@ -321,13 +327,14 @@ public class playerController {
         }
     }
 
+    // Changes the playback settings
     @FXML
     public void toggleLoop() throws IOException {
         ImageView imgView;
         switch(loopSetting) {
             case "noRpt":
                 loopSetting = "RptOne";
-                System.out.println("Current Setting: Repeat Once");
+                System.out.println("Current Setting: Repeat One");
                 imgView = new ImageView(iconRescaled(new File("src/main/resources/icons/replay.png"), 25));
                 loopTrack.setGraphic(imgView);
                 mediaPlayer.setCycleCount(MediaPlayer.INDEFINITE);
@@ -347,6 +354,7 @@ public class playerController {
         }
     }
 
+    // Toggles on/off the shuffle setting
     @FXML
     public void toggleShuffle() throws IOException {
         if (isShuffle) {
@@ -360,6 +368,7 @@ public class playerController {
         shuffleTrack.setGraphic(imgView);
     }
 
+    // Plays or pauses the current track
     @FXML
     public void playMedia() throws IOException {
         if (mediaPlayer.getStatus() == MediaPlayer.Status.UNKNOWN || mediaPlayer.getStatus() == MediaPlayer.Status.PAUSED) {
@@ -373,22 +382,26 @@ public class playerController {
         }
     }
 
+    // Stops the player
     @FXML
     public void stopMedia() {
         mediaPlayer.stop();
         playing = false;
     }
 
+    // Sets the duration back to the start of the track
     @FXML
     public void previousTrack() {
         mediaPlayer.seek(Duration.seconds(0));
     }
 
+    // Skips to the next track
     @FXML
     public void nextTrack() {
         mediaPlayer.seek(mediaPlayer.getTotalDuration());
     }
 
+    // Opens a window to a list of sources
     @FXML
     public void openSources() throws IOException {
         Parent newRoot = FXMLLoader.load(getClass().getClassLoader().getResource("sources.fxml"));
@@ -397,6 +410,7 @@ public class playerController {
         primaryStage.show();
     }
 
+    // Prepares all graphic elements to match the current song
     private void loadMedia(mp3tag tag) throws IOException, InvalidDataException, UnsupportedTagException {
         if (mediaPlayer != null) { mediaPlayer.stop(); }
         prepareTrack(tag.getFileName());
@@ -414,6 +428,7 @@ public class playerController {
         timeBar.setStyle(String.format("-fx-accent: derive(%s, 50%%);", colour));
     }
 
+    // Loads the current song into the mediaplayer and updates UI
     private void prepareTrack(String fileName) {
         String filePath = "file:\\\\\\" + fileName;
         filePath = filePath.replace("\\", "/").replaceAll(" ", "%20");
@@ -423,6 +438,7 @@ public class playerController {
         UIHelper();
     }
 
+    // Formats the time to a minute:seconds format
     private String formatTime(double time) {
         int minutes = (int) time/60;
         String seconds;
@@ -434,6 +450,7 @@ public class playerController {
         return minutes + ":" + seconds;
     }
 
+    // A UI helper method to prepare the UI to match the current song
     private void UIHelper() {
         mediaPlayer.setOnReady(() -> {
             timeSlider.setMax(mediaPlayer.getTotalDuration().toSeconds());
@@ -453,6 +470,7 @@ public class playerController {
         });
     }
 
+    // Creates a random order for the shuffle playlist
     private ArrayList<Integer> createShufflePlaylist(int size) {
         ArrayList<Integer> order = new ArrayList<>();
         for (int i = 0; i < size; i++) {
@@ -462,6 +480,7 @@ public class playerController {
         return order;
     }
 
+    // Helper method to initiate the playlist with no shuffle
     private void playPlaylistNoShuffle(ObservableList<mp3tag> tagList, int start) throws IOException, InvalidDataException, UnsupportedTagException {
         loadMedia(tagList.get(start));
         start++;
@@ -484,6 +503,7 @@ public class playerController {
         });
     }
 
+    // Helper method to initiate the playlist with shuffle
     private void playPlaylistShuffle(ObservableList<mp3tag> tagList, int start, ArrayList<Integer> order) throws IOException, InvalidDataException, UnsupportedTagException {
         loadMedia(tagList.get(order.get(start)));
         start++;
@@ -506,6 +526,7 @@ public class playerController {
         });
     }
 
+    // Refreshes the playlist view
     public void populatePlaylistView() {
         playlistView.getItems().clear();
         for (mp3tag tags : playlist) {
